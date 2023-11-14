@@ -4,6 +4,8 @@ Version: 0.0.0
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 Requires-Dist: matplotlib
+Requires-Dist: ffmpeg
+Requires-Dist: moviepy
 Provides-Extra: code-style
 Requires-Dist: black>=22.9.0; extra == "code-style"
 Requires-Dist: flake8>=5; extra == "code-style"

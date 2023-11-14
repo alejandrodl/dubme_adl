@@ -1,4 +1,6 @@
 matplotlib
+ffmpeg
+moviepy
 
 [code-style]
 black>=22.9.0

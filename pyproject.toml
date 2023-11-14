@@ -8,6 +8,8 @@ readme = "README.md"
 dynamic = ["version"]
 dependencies = [
   "matplotlib",
+  "ffmpeg",
+  "moviepy",
 ]
 requires-python = ">=3.9"
 
@@ -40,5 +42,7 @@ module = [
   "pytest.*",
   "scipy.*",
   "matplotlib.*",
+  "ffmpeg.*",
+  "moviepy.*",
 ]
 ignore_missing_imports = true
