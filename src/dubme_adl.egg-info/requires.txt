@@ -1,0 +1,13 @@
+matplotlib
+
+[code-style]
+black>=22.9.0
+flake8>=5
+
+[tests]
+pytest
+
+[type-check]
+mypy==1.1.1
+pydantic>=1.10
+types-tqdm

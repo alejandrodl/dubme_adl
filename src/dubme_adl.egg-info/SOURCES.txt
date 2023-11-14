@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+setup.cfg
+src/dubme_adl.egg-info/PKG-INFO
+src/dubme_adl.egg-info/SOURCES.txt
+src/dubme_adl.egg-info/dependency_links.txt
+src/dubme_adl.egg-info/requires.txt
+src/dubme_adl.egg-info/top_level.txt

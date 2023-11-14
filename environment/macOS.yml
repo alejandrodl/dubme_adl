@@ -1,0 +1,11 @@
+name: dubme_adl
+
+channels:
+  - defaults
+
+dependencies:
+  - pip
+  - python=3.10
+
+  - pip:
+    - -e '..[code-style, tests, type-check]'
