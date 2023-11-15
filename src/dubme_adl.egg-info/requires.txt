@@ -1,6 +1,10 @@
 matplotlib
 ffmpeg
 moviepy
+soundfile
+pesq
+pystoi
+openai-whisper
 
 [code-style]
 black>=22.9.0

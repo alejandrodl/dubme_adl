@@ -1,47 +1,77 @@
 import soundfile as sf
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy import signal
+import whisper
+import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
+import torchaudio
+import torch
+from denoiser import pretrained
+from denoiser.dsp import convert_audio
 
-def extract_audio_from_video(video_path, audio_path):
+
+def extract_audio_from_video(video_path, audio_directory):
     """
     Extract audio from a video file using moviepy.
 
     Args:
         video_path (str): Path to the video file.
-        audio_path (str): Path to save the extracted audio file.
+        audio_directory (str): Path to save the extracted audio file.
     """
     video = VideoFileClip(video_path)
-    video.audio.write_audiofile(audio_path)
+    name = video_path.split('/')[-1].split('.')[0] + '.wav'
+    output_name = audio_directory + '/' + name
+    video.audio.write_audiofile(output_name)
 
 
-def load_audio_file(file_path):
+def denoise_audio_file(audio_path, denoised_audio_directory):
     """
-    Load an audio file from disk.
+    Denoise an audio file using the pretrained DNS64 model.
 
     Args:
-        file_path (str): Path to the audio file.
-
-    Returns:
-        tuple: A tuple containing the audio data and the sample rate.
+        audio_path (str): Path to the audio file.
+        denoised_audio_directory (str): Path to save the denoised audio file.
     """
-    audio_data, sample_rate = sf.read(file_path)
-    return audio_data, sample_rate
+    model = pretrained.dns64()
+    wav, sr = torchaudio.load(audio_path)
+    wav = convert_audio(wav, sr, model.sample_rate, model.chin)
+    with torch.no_grad():
+        denoised = model(wav[None])[0]
+    denoised = denoised.squeeze().numpy()
+    name = audio_path.split('/')[-1]
+    output_name = denoised_audio_directory + '/' + name
+    sf.write(output_name, denoised, model.sample_rate)
+        
 
-def plot_spectrogram(audio_data, sample_rate):
+def get_noise_files(original_audio_path, denoised_audio_path, output_path, model_sr=16000, model_chin=1):
     """
-    Plot the spectrogram of an audio signal.
+    Subtract the denoised audio file from the original audio file to get the noise.
 
     Args:
-        audio_data (ndarray): Audio signal.
-        sample_rate (int): Sample rate of the audio signal.
+        original_audio_path (str): Path to the original audio file.
+        denoised_audio_path (str): Path to the denoised audio file.
+        output_path (str): Path to save the noise file.
+        model_sr (int): Sample rate of the pretrained DNS64 model.
+        model_chin (int): Number of input channels of the pretrained DNS64 model.
     """
-    frequencies, times, spectrogram = signal.spectrogram(audio_data, sample_rate)
-    plt.pcolormesh(times, frequencies, np.log(spectrogram))
-    plt.ylabel('Frequency [Hz]')
-    plt.xlabel('Time [sec]')
-    plt.show()
+    denoised_audio, _ = sf.read(denoised_audio_path)
+    original_audio, sr = torchaudio.load(original_audio_path)
+    original_audio = convert_audio(original_audio, sr, model_sr, model_chin)
+    original_audio = original_audio.squeeze().numpy()
+    noise = original_audio - denoised_audio
+    sf.write(output_path, noise, model_sr)
 
 
+def transcribe_audio_file(audio_path, output_path):
+    """
+    Transcribe an audio file in .wav format using whisper and save the text to a .txt document.
+
+    Args:
+        audio_path (str): Path to the audio file.
+        output_path (str): Path to save the transcribed text file.
+    """
+    if os.path.exists(output_path):
+        os.remove(output_path)
+    with open(output_path, 'w') as f:
+        model = whisper.load_model("base.en")
+        result = model.transcribe(audio_path)
+        f.write(result["text"])

@@ -6,6 +6,10 @@ Description-Content-Type: text/markdown
 Requires-Dist: matplotlib
 Requires-Dist: ffmpeg
 Requires-Dist: moviepy
+Requires-Dist: soundfile
+Requires-Dist: pesq
+Requires-Dist: pystoi
+Requires-Dist: openai-whisper
 Provides-Extra: code-style
 Requires-Dist: black>=22.9.0; extra == "code-style"
 Requires-Dist: flake8>=5; extra == "code-style"
