@@ -29,7 +29,7 @@ DENOISED_AUDIO_DIRECTORY = "data/denoised"
 NOISE_AUDIO_DIRECTORY = "data/noise"
 TRANSCRIPTIONS_DIRECTORY = "data/transcriptions"
 
-# Create audio directories if they don't exist
+# Create directories if they don't exist
 clear_make_directory(AUDIO_DIRECTORY, AUDIO_EXT)
 clear_make_directory(DENOISED_AUDIO_DIRECTORY, AUDIO_EXT)
 clear_make_directory(NOISE_AUDIO_DIRECTORY, AUDIO_EXT)
@@ -61,7 +61,7 @@ for audio_path in audio_paths:
     denoise_audio_file(audio_path, DENOISED_AUDIO_DIRECTORY, MODEL)
 print("Denoising took {} seconds".format(time.time() - start_time))
 
-# STEP 4 - Get denoised audio paths and subtract them from original audio to get noise
+# STEP 4 - Get denoised audio paths and subtract them from original audio to get noise file
 denoised_audio_paths = [
     os.path.join(DENOISED_AUDIO_DIRECTORY, filename)
     for filename in os.listdir(DENOISED_AUDIO_DIRECTORY)
