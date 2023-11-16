@@ -1,14 +1,11 @@
-.PHONY: code-style type-check pre-test tests
+.PHONY: code-style type-check pre-test
 
 
 code-style:
-	flake8 bin src tests
-	black --check bin src tests
+	flake8 src
+	black --check src
 
 type-check:
-	mypy bin src tests --namespace-packages
+	mypy src --namespace-packages
 
 pre-test: code-style type-check
-
-tests:
-	pytest tests/

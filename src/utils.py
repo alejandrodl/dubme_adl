@@ -1,7 +1,6 @@
 import soundfile as sf
 import whisper
 import os
-import csv
 import pandas as pd
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import torchaudio
@@ -11,7 +10,7 @@ from denoiser.dsp import convert_audio
 import speechmetrics
 
 
-def clear_make_directory(directory, extension):
+def clear_make_directory(directory: str, extension: str):
     """
     Remove all files with a certain extension from a directory.
 
@@ -27,7 +26,7 @@ def clear_make_directory(directory, extension):
                 os.remove(os.path.join(directory, filename))
 
 
-def extract_audio_from_video(video_path, audio_directory):
+def extract_audio_from_video(video_path: str, audio_directory: str):
     """
     Extract audio from a video file using moviepy.
 
@@ -36,12 +35,12 @@ def extract_audio_from_video(video_path, audio_directory):
         audio_directory (str): Path to save the extracted audio file.
     """
     video = VideoFileClip(video_path)
-    name = video_path.split('/')[-1].split('.')[0] + '.wav'
-    output_name = audio_directory + '/' + name
+    name = video_path.split("/")[-1].split(".")[0] + ".wav"
+    output_name = audio_directory + "/" + name
     video.audio.write_audiofile(output_name)
 
 
-def downsample_and_mono_from_path(audio_path, output_sr=16000):
+def downsample_and_mono_from_path(audio_path: str, output_sr: int = 16000):
     """
     Downsample an audio file to an output sample rate, make it mono and save it to a .wav file.
 
@@ -58,7 +57,9 @@ def downsample_and_mono_from_path(audio_path, output_sr=16000):
     sf.write(audio_path, downsampled_audio, output_sr)
 
 
-def denoise_audio_file(audio_path, denoised_audio_directory, model='CleanUNet'):
+def denoise_audio_file(
+    audio_path: str, denoised_audio_directory: str, model_str: str = "CleanUNet"
+):
     """
     Denoise an audio file using the pretrained FAIR model (DNS64) or CleanUNet.
 
@@ -66,26 +67,31 @@ def denoise_audio_file(audio_path, denoised_audio_directory, model='CleanUNet'):
         audio_path (str): Path to the audio file.
         denoised_audio_directory (str): Path to save the denoised audio file.
     """
-    if model == 'FAIR':
+    if model_str == "FAIR":
         model = pretrained.dns64()
         wav, sr = torchaudio.load(audio_path)
         wav = convert_audio(wav, sr, model.sample_rate, model.chin)
         with torch.no_grad():
             denoised = model(wav[None])[0]
         denoised = denoised.squeeze().numpy()
-        name = audio_path.split('/')[-1]
-        output_name = denoised_audio_directory + '/' + name
+        name = audio_path.split("/")[-1]
+        output_name = denoised_audio_directory + "/" + name
         sf.write(output_name, denoised, model.sample_rate)
 
-    elif model == 'CleanUNet':
+    elif model_str == "CleanUNet":
         os.chdir(denoised_audio_directory)
-        file_name = '../audios/' + audio_path.split('/')[-1]
+        file_name = "../audios/" + audio_path.split("/")[-1]
         command = f"python ../../submodules/CleanUNet/denoise_simple.py -c ../../submodules/CleanUNet/configs/DNS-large-full.json --ckpt_pat ../../submodules/CleanUNet/exp/DNS-large-high/checkpoint/pretrained.pkl {file_name}"
         os.system(command)
-        os.chdir('../..')
-        
+        os.chdir("../..")
 
-def get_noise_files(original_audio_path, denoised_audio_path, output_path, model_sr=16000):
+
+def get_noise_files(
+    original_audio_path: str,
+    denoised_audio_path: str,
+    output_path: str,
+    model_sr: int = 16000,
+):
     """
     Subtract the denoised audio file from the original audio file to get the noise.
 
@@ -101,7 +107,7 @@ def get_noise_files(original_audio_path, denoised_audio_path, output_path, model
     sf.write(output_path, noise, model_sr)
 
 
-def transcribe_audio_file(audio_path, output_path):
+def transcribe_audio_file(audio_path: str, output_path: str):
     """
     Transcribe an audio file in .wav format using whisper and save the text to a .txt document.
 
@@ -111,20 +117,28 @@ def transcribe_audio_file(audio_path, output_path):
     """
     if os.path.exists(output_path):
         os.remove(output_path)
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         model = whisper.load_model("base.en")
         result = model.transcribe(audio_path)
         f.write(result["text"])
 
 
-def compute_metrics(metrics_dict, denoised_audio_path, original_audio_path, abs_metrics=['mosnet'], rel_metrics=['sisdr']):
+def compute_metrics(
+    metrics_dict: dict,
+    denoised_audio_path: str,
+    original_audio_path: str,
+    abs_metrics: list = [],
+    rel_metrics: list = ["stoi", "sisdr"],
+):
     """
-    Compute absolute and relative metrics using denoised audio and original audio for relative metrics and only denoised
-    audio for absolute metrics. Save the computed metrics to a .csv file containing a table with the name of the metrics
-    as columns and the name of the denoised audio files as rows, with all computed metrics values there.
+    Compute absolute and relative metrics using denoised audio and original audio for relative
+    metrics and only denoised audio for absolute metrics. Save the computed metrics to a .csv
+    file containing a table with the name of the metrics as columns and the name of the
+    denoised audio files as rows, with all computed metrics values there.
 
     Args:
-        metrics_dict (dict): Dictionary containing the name of the metrics as keys and the corresponding functions as values.
+        metrics_dict (dict): Dictionary containing the name of the metrics as keys and the
+                             corresponding functions as values.
         denoised_audio_path (str): Path to the denoised audio file.
         original_audio_path (str): Path to the original audio file.
     """
@@ -145,24 +159,26 @@ def compute_metrics(metrics_dict, denoised_audio_path, original_audio_path, abs_
     relative_metrics = metrics_relative(denoised_audio, original_audio, rate=sr)
 
     # Combine the absolute and relative metrics into a single dictionary
-    file_name = denoised_audio_path.split('/')[-1]
+    file_name = denoised_audio_path.split("/")[-1]
     metrics_dict[file_name] = {**absolute_metrics, **relative_metrics}
 
     return metrics_dict
 
 
-def save_metrics(metrics_dict, output_path):
+def save_metrics(metrics_dict: dict, output_path: str):
     """
-    Create a table from the metrics_dict dictionary output from the compute_metrics function with all the metrics values
-    inside and which has the names of the metrics as columns and the names of the files as rows. Save the table to a .csv
+    Create a table from the metrics_dict dictionary output from the compute_metrics function
+    with all the metrics values inside and which has the names of the metrics as columns and
+    the names of the files as rows. Save the table to a .csv
 
     Args:
-        metrics_dict (dict): Dictionary containing the name of the metrics as keys and the corresponding functions as values.
+        metrics_dict (dict): Dictionary containing the name of the metrics as keys and the
+                             corresponding functions as values.
         output_path (str): The path to save the metrics to a CSV file.
 
     Returns:
-        pandas.DataFrame: A table with all the metrics values inside and which has the names of the metrics as columns and
-        the names of the files as rows.
+        pandas.DataFrame: A table with all the metrics values inside and which has the names
+        of the metrics as columns and the names of the files as rows.
     """
     metrics_df = pd.DataFrame(metrics_dict)
     metrics_df.to_csv(output_path)
