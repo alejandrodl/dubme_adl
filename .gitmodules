@@ -4,9 +4,6 @@
 [submodule "submodules/denoiser"]
 	path = submodules/denoiser
 	url = https://github.com/alejandrodl/denoiser.git
-[submodule "submodules/FullSubNet"]
-	path = submodules/FullSubNet
-	url = https://github.com/alejandrodl/FullSubNet.git
 [submodule "submodules/speechmetrics"]
 	path = submodules/speechmetrics
 	url = https://github.com/aliutkus/speechmetrics.git
