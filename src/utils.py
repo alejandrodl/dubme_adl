@@ -8,6 +8,7 @@ import torch
 from denoiser import pretrained
 from denoiser.dsp import convert_audio
 import speechmetrics
+from jiwer import wer, cer
 
 
 def clear_make_directory(directory: str, extension: str):
@@ -129,7 +130,7 @@ def transcribe_audio_file(audio_path: str, output_path: str):
         f.write(result["text"])
 
 
-def compute_metrics(
+def compute_audio_quality_metrics(
     metrics_dict: dict,
     denoised_audio_path: str,
     original_audio_path: str,
@@ -137,16 +138,21 @@ def compute_metrics(
     rel_metrics: list = ["stoi", "sisdr"],
 ):
     """
-    Compute absolute and relative metrics using denoised audio and original audio for relative
-    metrics and only denoised audio for absolute metrics. Save the computed metrics to a .csv
-    file containing a table with the name of the metrics as columns and the name of the
-    denoised audio files as rows, with all computed metrics values there.
+    Compute absolute and relative audio quality metrics using denoised audio and original
+    audio for relative metrics and only denoised audio for absolute metrics. Save the
+    computed metrics to a .csv file containing a table with the name of the metrics
+    as columns and the name of the denoised audio files as rows, with all computed
+    metrics values there.
 
     Args:
         metrics_dict (dict): Dictionary containing the name of the metrics as keys and the
                              corresponding functions as values.
         denoised_audio_path (str): Path to the denoised audio file.
         original_audio_path (str): Path to the original audio file.
+    
+    Returns:
+        dict: Dictionary containing the name of the metrics as keys and the
+              corresponding functions as values.
     """
 
     # Set the window length for the metrics in seconds
@@ -165,8 +171,40 @@ def compute_metrics(
     relative_metrics = metrics_relative(denoised_audio, original_audio, rate=sr)
 
     # Combine the absolute and relative metrics into a single dictionary
-    file_name = denoised_audio_path.split("/")[-1]
+    file_name = denoised_audio_path.split("/")[-1].split(".")[0]
     metrics_dict[file_name] = {**absolute_metrics, **relative_metrics}
+
+    return metrics_dict
+
+
+def compute_transcription_quality_metrics(metrics_dict: dict, transcription_gt_path: str, transcription_path: str):
+    """
+    Compute the Word Error Rate (WER) between the ground truth and predicted transcriptions,
+    and save the result to a CSV file.
+
+    Args:
+        metrics_dict (dict): Dictionary containing the name of the metrics as keys and the
+                             corresponding functions as values.
+        transcription_gt_path (str): Path to the ground truth transcription file.
+        transcription_path (str): Path to the predicted transcription file.
+    
+    Returns:
+        dict: Dictionary containing the name of the metrics as keys and the
+              corresponding functions as values.
+    """
+    # Open transcription .txt files
+    with open(transcription_gt_path, "r") as f:
+        ground_truth = f.read()
+    with open(transcription_path, "r") as f:
+        predicted = f.read()
+
+    # Compute WER and CER
+    error_wer = wer(ground_truth, predicted)
+    error_cer = cer(ground_truth, predicted)
+
+    # Save the WER and CER to a dictionary
+    file_name = transcription_path.split("/")[-1].split(".")[0]
+    metrics_dict[file_name] = {"WER": error_wer, "CER": error_cer}
 
     return metrics_dict
 

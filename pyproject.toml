@@ -16,6 +16,7 @@ dependencies = [
   "openai-whisper",
   "torchvision",
   "torchaudio",
+  "jiwer",
 ]
 requires-python = ">=3.9"
 
@@ -56,5 +57,6 @@ module = [
   "openai-whisper.*",
   "torchvision.*",
   "torchaudio.*",
+  "jiwer.*",
 ]
 ignore_missing_imports = true

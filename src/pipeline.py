@@ -7,13 +7,14 @@ from utils import (
     denoise_audio_file,
     get_noise_files,
     transcribe_audio_file,
-    compute_metrics,
+    compute_audio_quality_metrics,
+    compute_transcription_quality_metrics,
     save_metrics,
 )
 
 
 # Separation models
-model = "CleanUNet"  # 'FAIR' or 'CleanUNet'
+model = "FAIR"  # 'FAIR' or 'CleanUNet'
 print("Using {} model".format(model))
 
 # Set extensions
@@ -88,26 +89,61 @@ for denoised_audio_path in denoised_audio_paths:
     )
     transcribe_audio_file(denoised_audio_path, transcriptions_path)
 
-# STEP 6 (Optional) - Compute metrics and save them to a csv file
+# STEP 6 (Optional) - Compute audio quality metrics and save them to a csv file
 denoised_audio_paths = [
     os.path.join(denoised_audio_directory, filename)
     for filename in os.listdir(denoised_audio_directory)
     if filename.endswith(audio_ext)
 ]
-metrics_dict: dict = {}
+audio_metrics_dict: dict = {}
 for denoised_audio_path in denoised_audio_paths:
     original_audio_path = audio_directory + "/" + denoised_audio_path.split("/")[-1]
-    metrics_dict = compute_metrics(
-        metrics_dict,
+    audio_metrics_dict = compute_audio_quality_metrics(
+        audio_metrics_dict,
         denoised_audio_path,
         original_audio_path,
         abs_metrics=[],
         rel_metrics=["stoi", "sisdr"],
     )
 
-metrics_path = "data/metrics_" + model + ".csv"
+metrics_path = "data/audio_metrics_" + model + ".csv"
 if os.path.exists(metrics_path):
     os.remove(metrics_path)
-    save_metrics(metrics_dict, metrics_path)
+    save_metrics(audio_metrics_dict, metrics_path)
 else:
-    save_metrics(metrics_dict, metrics_path)
+    save_metrics(audio_metrics_dict, metrics_path)
+
+# STEP 7 (Optional) - Compute transcription quality metrics and save them to a csv file
+transcription_metrics_dict: dict = {}
+for denoised_audio_path in denoised_audio_paths:
+    transcription_gt_path = (
+        transcriptions_directory
+        + "_gt/"
+        + denoised_audio_path.split("/")[-1].split(".")[0]
+        + "_gt.txt"
+    )
+    transcription_path = (
+        transcriptions_directory
+        + "/"
+        + denoised_audio_path.split("/")[-1].split(".")[0]
+        + ".txt"
+    )
+    transcription_denoised_path = transcription_path[:-4] + "_denoised.txt"
+    
+    transcription_metrics_dict = compute_transcription_quality_metrics(
+        transcription_metrics_dict,
+        transcription_gt_path,
+        transcription_path,
+    )
+    transcription_metrics_dict = compute_transcription_quality_metrics(
+        transcription_metrics_dict,
+        transcription_gt_path,
+        transcription_denoised_path,
+    )
+
+metrics_path = "data/transcription_metrics_" + model + ".csv"
+if os.path.exists(metrics_path):
+    os.remove(metrics_path)
+    save_metrics(transcription_metrics_dict, metrics_path)
+else:
+    save_metrics(transcription_metrics_dict, metrics_path)
