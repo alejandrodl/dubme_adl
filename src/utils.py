@@ -81,7 +81,13 @@ def denoise_audio_file(
     elif model_str == "CleanUNet":
         os.chdir(denoised_audio_directory)
         file_name = "../audios/" + audio_path.split("/")[-1]
-        command = f"python ../../submodules/CleanUNet/denoise_simple.py -c ../../submodules/CleanUNet/configs/DNS-large-full.json --ckpt_pat ../../submodules/CleanUNet/exp/DNS-large-high/checkpoint/pretrained.pkl {file_name}"
+        command = (
+            "python ../../submodules/CleanUNet/denoise_simple.py -c "
+            "../../submodules/CleanUNet/configs/DNS-large-high.json "
+            "--ckpt_pat "
+            "../../submodules/CleanUNet/exp/DNS-large-high/checkpoint/pretrained.pkl "
+            f"{file_name}"
+        )
         os.system(command)
         os.chdir("../..")
 

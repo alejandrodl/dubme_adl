@@ -1,6 +1,5 @@
 import os
 import time
-from pathlib import Path
 from utils import (
     clear_make_directory,
     extract_audio_from_video,
