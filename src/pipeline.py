@@ -129,7 +129,7 @@ for denoised_audio_path in denoised_audio_paths:
         + ".txt"
     )
     transcription_denoised_path = transcription_path[:-4] + "_denoised.txt"
-    
+
     transcription_metrics_dict = compute_transcription_quality_metrics(
         transcription_metrics_dict,
         transcription_gt_path,

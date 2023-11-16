@@ -149,7 +149,7 @@ def compute_audio_quality_metrics(
                              corresponding functions as values.
         denoised_audio_path (str): Path to the denoised audio file.
         original_audio_path (str): Path to the original audio file.
-    
+
     Returns:
         dict: Dictionary containing the name of the metrics as keys and the
               corresponding functions as values.
@@ -177,7 +177,9 @@ def compute_audio_quality_metrics(
     return metrics_dict
 
 
-def compute_transcription_quality_metrics(metrics_dict: dict, transcription_gt_path: str, transcription_path: str):
+def compute_transcription_quality_metrics(
+    metrics_dict: dict, transcription_gt_path: str, transcription_path: str
+):
     """
     Compute the Word Error Rate (WER) between the ground truth and predicted transcriptions,
     and save the result to a CSV file.
@@ -187,7 +189,7 @@ def compute_transcription_quality_metrics(metrics_dict: dict, transcription_gt_p
                              corresponding functions as values.
         transcription_gt_path (str): Path to the ground truth transcription file.
         transcription_path (str): Path to the predicted transcription file.
-    
+
     Returns:
         dict: Dictionary containing the name of the metrics as keys and the
               corresponding functions as values.
