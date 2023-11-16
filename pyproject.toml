@@ -14,6 +14,8 @@ dependencies = [
   "pesq",
   "pystoi",
   "openai-whisper",
+  "torchvision",
+  "torchaudio",
 ]
 requires-python = ">=3.9"
 
@@ -52,5 +54,7 @@ module = [
   "pesq.*",
   "pystoi.*",
   "openai-whisper.*",
+  "torchvision.*",
+  "torchaudio.*",
 ]
 ignore_missing_imports = true

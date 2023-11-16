@@ -5,6 +5,8 @@ soundfile
 pesq
 pystoi
 openai-whisper
+torchvision
+torchaudio
 
 [code-style]
 black>=22.9.0

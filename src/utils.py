@@ -11,6 +11,22 @@ from denoiser.dsp import convert_audio
 import speechmetrics
 
 
+def clear_make_directory(directory, extension):
+    """
+    Remove all files with a certain extension from a directory.
+
+    Args:
+        directory (str): Path to the directory.
+        extension (str): Extension of the files to be removed.
+    """
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    else:
+        for filename in os.listdir(directory):
+            if filename.endswith(extension):
+                os.remove(os.path.join(directory, filename))
+
+
 def extract_audio_from_video(video_path, audio_directory):
     """
     Extract audio from a video file using moviepy.
@@ -25,28 +41,9 @@ def extract_audio_from_video(video_path, audio_directory):
     video.audio.write_audiofile(output_name)
 
 
-def denoise_audio_file(audio_path, denoised_audio_directory):
-    """
-    Denoise an audio file using the pretrained DNS64 model.
-
-    Args:
-        audio_path (str): Path to the audio file.
-        denoised_audio_directory (str): Path to save the denoised audio file.
-    """
-    model = pretrained.dns64()
-    wav, sr = torchaudio.load(audio_path)
-    wav = convert_audio(wav, sr, model.sample_rate, model.chin)
-    with torch.no_grad():
-        denoised = model(wav[None])[0]
-    denoised = denoised.squeeze().numpy()
-    name = audio_path.split('/')[-1]
-    output_name = denoised_audio_directory + '/' + name
-    sf.write(output_name, denoised, model.sample_rate)
-
-
 def downsample_and_mono_from_path(audio_path, output_sr=16000):
     """
-    Downsample an audio file to an output sample rate and make it mono.
+    Downsample an audio file to an output sample rate, make it mono and save it to a .wav file.
 
     Args:
         audio_path (str): Path to the audio file.
@@ -57,7 +54,35 @@ def downsample_and_mono_from_path(audio_path, output_sr=16000):
     """
     audio, sr = torchaudio.load(audio_path)
     downsampled_audio = convert_audio(audio, sr, output_sr, 1)
-    return downsampled_audio.squeeze().numpy()
+    downsampled_audio = downsampled_audio.squeeze().numpy()
+    sf.write(audio_path, downsampled_audio, output_sr)
+
+
+def denoise_audio_file(audio_path, denoised_audio_directory, model='CleanUNet'):
+    """
+    Denoise an audio file using the pretrained FAIR model (DNS64) or CleanUNet.
+
+    Args:
+        audio_path (str): Path to the audio file.
+        denoised_audio_directory (str): Path to save the denoised audio file.
+    """
+    if model == 'FAIR':
+        model = pretrained.dns64()
+        wav, sr = torchaudio.load(audio_path)
+        wav = convert_audio(wav, sr, model.sample_rate, model.chin)
+        with torch.no_grad():
+            denoised = model(wav[None])[0]
+        denoised = denoised.squeeze().numpy()
+        name = audio_path.split('/')[-1]
+        output_name = denoised_audio_directory + '/' + name
+        sf.write(output_name, denoised, model.sample_rate)
+
+    elif model == 'CleanUNet':
+        os.chdir(denoised_audio_directory)
+        file_name = '../audios/' + audio_path.split('/')[-1]
+        command = f"python ../../submodules/CleanUNet/denoise_simple.py -c ../../submodules/CleanUNet/configs/DNS-large-full.json --ckpt_pat ../../submodules/CleanUNet/exp/DNS-large-high/checkpoint/pretrained.pkl {file_name}"
+        os.system(command)
+        os.chdir('../..')
         
 
 def get_noise_files(original_audio_path, denoised_audio_path, output_path, model_sr=16000):
@@ -71,7 +96,7 @@ def get_noise_files(original_audio_path, denoised_audio_path, output_path, model
         model_sr (int): Sample rate of the pretrained DNS64 model.
     """
     denoised_audio, _ = sf.read(denoised_audio_path)
-    original_audio = downsample_and_mono_from_path(original_audio_path, model_sr)
+    original_audio, _ = sf.read(original_audio_path)
     noise = original_audio - denoised_audio
     sf.write(output_path, noise, model_sr)
 
@@ -92,7 +117,7 @@ def transcribe_audio_file(audio_path, output_path):
         f.write(result["text"])
 
 
-def compute_metrics(metrics_dict, denoised_audio_path, original_audio_path):
+def compute_metrics(metrics_dict, denoised_audio_path, original_audio_path, abs_metrics=['mosnet'], rel_metrics=['sisdr']):
     """
     Compute absolute and relative metrics using denoised audio and original audio for relative metrics and only denoised
     audio for absolute metrics. Save the computed metrics to a .csv file containing a table with the name of the metrics
@@ -107,18 +132,16 @@ def compute_metrics(metrics_dict, denoised_audio_path, original_audio_path):
     # Set the window length for the metrics in seconds
     window_length = 30
 
-    # Load the denoised audio file
+    # Load original and denoised audio files
+    original_audio, sr = sf.read(original_audio_path)
     denoised_audio, sr = sf.read(denoised_audio_path)
 
     # Compute the absolute metrics
-    metrics_absolute = speechmetrics.load('absolute', window_length)
+    metrics_absolute = speechmetrics.load(abs_metrics, window_length)
     absolute_metrics = metrics_absolute(denoised_audio, rate=sr)
 
-    # Load the original audio file and convert it to the same sample rate and number of channels as those of the original audio
-    original_audio = downsample_and_mono_from_path(original_audio_path, sr)
-
     # Compute the relative metrics
-    metrics_relative = speechmetrics.load(['bsseval', 'sisdr'], window_length)
+    metrics_relative = speechmetrics.load(rel_metrics, window_length)
     relative_metrics = metrics_relative(denoised_audio, original_audio, rate=sr)
 
     # Combine the absolute and relative metrics into a single dictionary
