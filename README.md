@@ -34,7 +34,7 @@ The [`research_pipeline.py`](src/research_pipeline.py) contains all associated r
 
 ## Results
 
-Here, we present the results I gathered without analysing them (they are discussed in the [Discussion](#discussion) section below).
+Here, we present the results I gathered without analysing them (they are discussed in the [Discussion](#discussion) section below). All videos, original audios from videos, denoised files, noise files, trasncriptions, and ground truth transcriptions can be found in the [data](data/) directory.
 
 ### Noise Separation Timing
 
@@ -56,6 +56,8 @@ NVIDIA's CleanUNet | inside_and_reverb | outside_and_wind | inside_and_low_volum
 SI-SDR | -1.24 | 9.674 | 0.619 | 13.044 
 STOI | 0.874 | 0.662 | 0.498 | 0.96 
 
+The content of these tables can be found in the [data](data/) directory in `.csv` format.
+
 ### Speech Transcription Quality
 
 The tables below show the values for the retrieved transcription quality metrics using OpenAI's Whisper. Both for WER and CER, the lower the value the better. Ground truth transcriptions were hand-crafted and written in .txt files.
@@ -75,6 +77,8 @@ NVIDIA's CleanUNet | inside_and_reverb | outside_and_wind | inside_and_low_volum
 WER | 0.022 | 0.28 | 0.62 | 0.054 
 CER | 0.008 | 0.136 | 0.373 | 0.018
 
+The content of these tables can be found in the [data](data/) directory in `.csv` format.
+
 ## Discussion
 
 It can be seen that, in terms of speed, both algorithms perform considerably faster than in real time and no significant difference between speed performances was found.
@@ -93,7 +97,7 @@ Finally, some limitations that this study has are:
 
 - Low number of metrics: Having more metrics would help to get clearer conclusions.
 
-- Unverified ground truth transcripts: Getting verified ground truth transcriptions and/or more people to verify one's ground truth transcriptions would make findings on speech transcription quality more robust.
+- Unverified [ground truth transcripts](data/transcriptions_gt/): Getting verified ground truth transcriptions and/or more people to verify one's ground truth transcriptions would make findings on speech transcription quality more robust.
 
 
 # Repository's Usage 
