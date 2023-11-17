@@ -8,11 +8,11 @@ This is the code repository for the [dubme assignment](Dubme_ML_engineer_-_probl
 python src/separation_program.py -vp [path_to_video]
 ```
 
-- [`research_pipeline.py`](src/research_pipeline.py): This script contains all the research routines that have been implemented in order to select the best separation algorithm and extract insights from both the sepatation and the transcription routines based on objective metrics. This is an extended script for the assignment.
+- [`research_pipeline.py`](src/research_pipeline.py): This script contains all the research routines that have been implemented in order to select the best separation algorithm and extract insights from both the separation and the transcription routines based on objective metrics. This is an extended script for the assignment.
 
 - [`utils.py`](src/utils.py): Contains utility functions for the two scripts described above.
 
-All three scripts are commented and structured to improve both readability and comprehensiveness.
+All three scripts are commented on and structured to improve both readability and comprehensiveness.
 
 # Research
 
@@ -22,7 +22,7 @@ The following has been included in this brief research study:
 
 - 2 State-of-the-art models based on neural network algorithms: [`FAIR Denoiser`](https://github.com/facebookresearch/denoiser) and [`NVIDIA's CleanUNet`](https://github.com/NVIDIA/CleanUNet). I selected those based on their [performance](https://nv-adlr.github.io/projects/cleanunet/). It can be seen there that authors do not compare the model's performance to those from classical signal processing-based methods like Weiner filtering, hence I deduce that it's likely that deep learning-based methods significantly outperform classical signal processing-based ones.
 
-- 1 State-of-the-art STT transcription model based on a neural network algorithm: [`OpenAI's Whisper`](https://github.com/openai/whisper). This open-source model is known for outputing almost perfect transcriptions even with heavy background noise.
+- 1 State-of-the-art STT transcription model based on a neural network algorithm: [`OpenAI's Whisper`](https://github.com/openai/whisper). This open-source model is known for outputting almost perfect transcriptions even with heavy background noise.
 
 - 2 Audio quality relative metrics via the [speechmetrics](https://github.com/aliutkus/speechmetrics) toolbox: `STOI` and `SI-SNR`. These are very well-known in the field of audio quality assessment and relatively simple to interpret.
 
@@ -40,11 +40,11 @@ Here, we present the results I gathered without analysing them (they are discuss
 
 To time the two noise separation algorithms, I used a MacBook Pro 16" 2021 and performed separation 10 times, from which the average was taken.
 
-Processing a total of 218 seconds in 4 videos, FAIR's Denoiser took 16.80 seconds while NVIDIA's CleanUNet took 16.75, which both equal to nearly 13 times faster than real time.
+Processing a total of 218 seconds in 4 videos, FAIR's Denoiser took 16.80 seconds while NVIDIA's CleanUNet took 16.75, which both equal to nearly 13 times faster than real-time.
 
 ### Noise Separation Audio Quality
 
-The tables below show the values for the retrieved audio quality metrics for noise removal using FAIR's Denoiser and NVIDIA's CleanUNet. The SI-SDR is given in dB (the more, the merrier), and teh STOI is normalised from 0 (worst) to 1 (best).
+The tables below show the values for the retrieved audio quality metrics for noise removal using FAIR's Denoiser and NVIDIA's CleanUNet. The SI-SDR is given in dB (the more, the merrier), and the STOI is normalised from 0 (worst) to 1 (best).
 
 FAIR's Denoiser | inside_and_reverb | outside_and_wind | inside_and_low_volume | music_background
 --- | --- | --- | --- |---
@@ -77,19 +77,19 @@ CER | 0.008 | 0.136 | 0.373 | 0.018
 
 ## Discussion
 
-It can be seen that, in terms of speed, both algorithms perform considerably faster than real time and noy significant difference between speed performances was found.
+It can be seen that, in terms of speed, both algorithms perform considerably faster than in real time and no significant difference between speed performances was found.
 
-In terms of both noise separation audio quality, FAIR's Denoiser generally performs slightly better than NVIDIA's CleanUNet for all videos and metrics. Then, when considering transcription quality, they are usually on pair, with no significant differences in performance.
+In terms of noise separation audio quality, FAIR's Denoiser generally performs slightly better than NVIDIA's CleanUNet for all videos and metrics. Then, when considering transcription quality, they are usually on pair, with no significant differences in performance.
 
-It is also worth noting that the OpenAI's Whisper transcriber algorithm performs significantly better when applied to original audios than to denoised audio. This is due to the fact that the algorithm was trained with noisy videos and in an end-to-end fashion, so the denoising process already takes place there implicitly.
+It is also worth noting that the OpenAI's Whisper transcriber algorithm performs significantly better when applied to original audio than to denoised audio. This is due to the fact that the algorithm was trained with noisy videos and in an end-to-end fashion, so the denoising process already takes place there implicitly.
 
 Hence, I decided to use FAIR's Denoiser in the main [`separation_program.py`](src/separation_program.py) script.
 
 Finally, some limitations that this study has are:
 
-- Low video sample size: Increasing the number of analised videos would clarify the veracity and impact of the insights above.
+- Low video sample size: Increasing the number of analysed videos would clarify the veracity and impact of the insights above.
 
-- Low model sample size: Increasing the number of models would clarify the veracity and impact of the insights above. For instance, experiments with NVIDIA's CleanUNet were done with its `high` version of the model (less parameters), so it would be interesting to see how the `full` version of the model performs in relation to FAIR's Denoiser.
+- Low model sample size: Increasing the number of models would clarify the veracity and impact of the insights above. For instance, experiments with NVIDIA's CleanUNet were done with its `high` version of the model (fewer parameters), so it would be interesting to see how the `full` version of the model performs in relation to FAIR's Denoiser.
 
 - Low number of metrics: Having more metrics would help to get clearer conclusions.
 
@@ -100,7 +100,7 @@ Finally, some limitations that this study has are:
 
 ## Dependencies
 
-I use `conda` to handle python dependencies, the default `conda` environment creation is currently supported for 64-bit Linux operating system.  To create/update an environment:
+I use `conda` to handle Python dependencies, the default `conda` environment creation is currently supported for 64-bit Linux operating system.  To create/update an environment:
 
 ```sh
 conda env create -f environment/[op_system].yml
