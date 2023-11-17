@@ -99,6 +99,8 @@ Finally, some limitations that this study has are:
 
 - Unverified [ground truth transcripts](data/transcriptions_gt/): Getting verified ground truth transcriptions and/or more people to verify one's ground truth transcriptions would make findings on speech transcription quality more robust.
 
+Tackling these limitations among others would improve the quality of the research study and would pave the way to better STT algorithms. The challenge, then, would be in (i) identifying where end-to-end STT algorithms like OpenAI's Whisper fail (e.g. audios with too much noise), (ii) see whether noise removal makes a difference, and (iii) applying noise removal if it improves performance.
+
 
 # Repository's Usage 
 
