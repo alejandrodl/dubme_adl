@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 import argparse
 from utils import (
     clear_make_directory,
@@ -20,13 +21,14 @@ def main(video_path):
     AUDIO_EXT = ".wav"
 
     # Set paths
-    AUDIO_DIRECTORY = "output_separation_program/audio_file"
-    DENOISED_AUDIO_DIRECTORY = "output_separation_program/denoised_file"
-    NOISE_AUDIO_DIRECTORY = "output_separation_program/noise_file"
+    MAIN_PATH = 'output_of_separation_program'
+    AUDIO_DIRECTORY = MAIN_PATH + "/audio_file"
+    DENOISED_AUDIO_DIRECTORY = MAIN_PATH + "/denoised_file"
+    NOISE_AUDIO_DIRECTORY = MAIN_PATH + "/noise_file"
 
     # Create directories if they don't exist
-    if not os.path.exists("output_separation_program"):
-        os.makedirs("output_separation_program")
+    if not os.path.exists(MAIN_PATH):
+        os.makedirs(MAIN_PATH)
     clear_make_directory(AUDIO_DIRECTORY, AUDIO_EXT)
     clear_make_directory(DENOISED_AUDIO_DIRECTORY, AUDIO_EXT)
     clear_make_directory(NOISE_AUDIO_DIRECTORY, AUDIO_EXT)
@@ -51,6 +53,7 @@ def main(video_path):
     )
     noise_path = os.path.join(NOISE_AUDIO_DIRECTORY, os.path.basename(audio_path))
     get_noise_files(audio_path, denoised_audio_path, noise_path)
+    shutil.rmtree(AUDIO_DIRECTORY)
 
 
 if __name__ == "__main__":

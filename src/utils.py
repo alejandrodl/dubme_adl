@@ -1,6 +1,7 @@
 import soundfile as sf
 import whisper
 import os
+import numpy as np
 import pandas as pd
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import torchaudio
@@ -163,12 +164,16 @@ def compute_audio_quality_metrics(
     denoised_audio, sr = sf.read(denoised_audio_path)
 
     # Compute the absolute metrics
-    metrics_absolute = speechmetrics.load(abs_metrics, window_length)
-    absolute_metrics = metrics_absolute(denoised_audio, rate=sr)
+    met_abs = speechmetrics.load(abs_metrics, window_length)
+    absolute_metrics = met_abs(denoised_audio, rate=sr)
+    for metric in absolute_metrics:
+        absolute_metrics[metric] = np.round(absolute_metrics[metric][0], decimals=3)
 
     # Compute the relative metrics
-    metrics_relative = speechmetrics.load(rel_metrics, window_length)
-    relative_metrics = metrics_relative(denoised_audio, original_audio, rate=sr)
+    met_rel = speechmetrics.load(rel_metrics, window_length)
+    relative_metrics = met_rel(denoised_audio, original_audio, rate=sr)
+    for metric in relative_metrics:
+        relative_metrics[metric] = np.round(relative_metrics[metric][0], decimals=3)
 
     # Combine the absolute and relative metrics into a single dictionary
     file_name = denoised_audio_path.split("/")[-1].split(".")[0]
@@ -206,7 +211,7 @@ def compute_transcription_quality_metrics(
 
     # Save the WER and CER to a dictionary
     file_name = transcription_path.split("/")[-1].split(".")[0]
-    metrics_dict[file_name] = {"WER": error_wer, "CER": error_cer}
+    metrics_dict[file_name] = {"WER": np.round(error_wer, decimals=3), "CER": np.round(error_cer, decimals=3)}
 
     return metrics_dict
 

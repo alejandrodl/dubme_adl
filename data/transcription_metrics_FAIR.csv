@@ -1,0 +1,3 @@
+,inside_and_reverb,inside_and_reverb_denoised,outside_and_wind,outside_and_wind_denoised,inside_and_low_volume,inside_and_low_volume_denoised,music_background,music_background_denoised
+WER,0.0,0.006,0.009,0.28,0.408,0.606,0.027,0.071
+CER,0.0,0.001,0.006,0.149,0.274,0.416,0.009,0.018

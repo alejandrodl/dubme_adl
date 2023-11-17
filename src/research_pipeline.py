@@ -14,7 +14,7 @@ from utils import (
 
 
 # Separation models
-MODEL = "FAIR"  # 'FAIR' or 'CleanUNet'
+MODEL = "CleanUNet"  # 'FAIR' or 'CleanUNet'
 print("Using {} model".format(MODEL))
 
 # Set extensions
