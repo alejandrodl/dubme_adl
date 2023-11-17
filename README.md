@@ -91,7 +91,7 @@ Hence, I decided to use FAIR's Denoiser in the main [`separation_program.py`](sr
 
 Finally, some limitations that this study has are:
 
-- Low video sample size: Increasing the number of analysed videos would clarify the veracity and impact of the insights above.
+- Low video sample size: Increasing the number of analysed videos taken with different environmental conditions would clarify the veracity and impact of the insights above.
 
 - Low model sample size: Increasing the number of models would clarify the veracity and impact of the insights above. For instance, experiments with NVIDIA's CleanUNet were done with its `high` version of the model (fewer parameters), so it would be interesting to see how the `full` version of the model performs in relation to FAIR's Denoiser.
 
